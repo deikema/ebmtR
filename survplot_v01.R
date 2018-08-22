@@ -2,7 +2,7 @@
 ##'
 ##' @title Plot survival curves
 ##' @param model Survival or prodlim object
-survplot <- function(fit, cause = 1, byval = 12, tstart = 0, xlab = '', order = 0, stacked = F, title = '', colormap = 'Set1') {
+survplot <- function(fit, cause = 1, byval = 12, tstart = 0, xlab = '', order = 0, stacked = F, title = '', colormap = 'Set1', bw = F, legendpos = 'topright') {
   
   if (length(cause) == 2) par(mfrow = c(1, 2))
 
@@ -26,7 +26,11 @@ survplot <- function(fit, cause = 1, byval = 12, tstart = 0, xlab = '', order = 
     .cause <- ifelse(length(cause) == 2, k, cause) 
     
     cols <- RColorBrewer::brewer.pal(9, colormap)
-    if (ngroups == 0 & length(cause) == 1) cols <- '#000000'
+    if (ngroups == 0 & length(cause) == 1 | bw == T) { 
+      cols <- '#000000'
+      linetype = 1:(ngroups + 1)
+    }
+    
     
     if (is.null(fit$strata)) fit$strata <- length(fit$time)
     ind <- c(0, cumsum(fit$strata))
@@ -34,7 +38,7 @@ survplot <- function(fit, cause = 1, byval = 12, tstart = 0, xlab = '', order = 
     if (fit$type == 'right') {
       
       ylab <- 'Survival'
-      plot(fit, conf.int = F, bty = 'l', axes = F, col = cols, main = title[k])
+      plot(fit, conf.int = F, bty = 'l', axes = F, col = cols, main = title[k], lty = linetype)
       lower <- fit$lower
       upper <- fit$upper
       
@@ -64,7 +68,7 @@ survplot <- function(fit, cause = 1, byval = 12, tstart = 0, xlab = '', order = 
         inc <- inc[, order]
         inc.cs <- t(apply(inc, 1, cumsum))
         plot(y = inc.cs[, 1], x = fit$time, bty = 'l', axes = FALSE, ylim = c(0, 1), 
-             type = 's', col = cols[1], ylab = '', xlab = '', main = title[k])
+             type = 's', col = cols[1], ylab = '', xlab = '', main = title[k], lty = linetype)
         inc.cs.int <- cbind(rep(0, length(fit$time)), inc.cs[, 1:length(order)])
         inc.cs.int <- rbind(rep(0, ncol(inc.cs.int)), inc.cs.int)
         
@@ -76,7 +80,7 @@ survplot <- function(fit, cause = 1, byval = 12, tstart = 0, xlab = '', order = 
           y_u <- c(u[1], rep(u, each = 2)[1:((length(u)*2) - 1)])
           y_l <- c(rev(rep(l, each = 2))[2:(length(l)*2)], l[1])
           
-          lines(y = inc.cs.int[, j + 1], x = t, type = 's', col = cols[j])
+          lines(y = inc.cs.int[, j + 1], x = t, type = 's', col = cols[j], lty = linetype[j])
           polygon(x, c(y_u, y_l), col = adjustcolor(cols[j], a), border = NA)
         }
         atrisk <- fit$n.risk[, ncol(fit$n.risk)]
@@ -110,7 +114,8 @@ survplot <- function(fit, cause = 1, byval = 12, tstart = 0, xlab = '', order = 
     mtext(text = ylab, at = 0.5, side = 2, line = 3, cex = 1.2)
     text(x = tmax, y = 0.03, labels = xlab, cex = 0.8, adj = 1)
   }
-  # add legend for bw figures
 
+  if (bw) legend(legendpos, lty = linetype, legend = varnames)
+  
   par(mfrow = c(1, 1))
 }
