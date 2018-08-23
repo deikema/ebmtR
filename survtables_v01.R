@@ -293,7 +293,7 @@ tableone <- function(data, by = '', margin = 2, cat.names = '', cont.names = '',
 # REPLACEMENT FOR COXOUT:-> INCLUDES SUPPORT FOR RISKREGRESSION (NOT CRR)
 # THIS IS A DEV VERSION (WORKS IF YOU CAN IGNORE TERRIBLE CODING)
 # ALSO, FOR CSH, BE SURE TO FIRST CODE THE STATUS VAR AS 0-1, FOR WHATEVER CAUSE YOU ARE USING, OTHERWISE IT DOES NOT WORK CORRECTLY (IT EXPECTS THE OUTCOME INDICATOR AS A VARIABLE NAME, IT CANT HANDLE A CONDITIONAL)
-mvatab <- function(fit, caption = '', showevents = TRUE, digits = 2) {
+mvatab <- function(fit, caption = '', showevents = TRUE, digits = 2, df = F) {
      # get data frame used in model
      data <- get(as.character(fit$call$data))
      # get the outcome variables (differentiate between Hist or Surv object)
@@ -383,8 +383,12 @@ mvatab <- function(fit, caption = '', showevents = TRUE, digits = 2) {
      
      colnames.str <- c('','group','n','n events',paste0(estimate, ' (95% CI)'),'p')
      
-     options(knitr.kable.NA = '')
-     return(knitr::kable(mat, col.names = colnames.str, caption = caption, row.names = FALSE))
+     if (df) { 
+       return(as.data.frame(mat))
+     } else {
+       options(knitr.kable.NA = '')
+       return(knitr::kable(mat, col.names = colnames.str, caption = caption, row.names = FALSE))
+     }
 }
 
 
