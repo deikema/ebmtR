@@ -86,6 +86,7 @@ survplot <- function(fit, cause = 1, byval = 12, tstart = 0, xlab = '', order = 
         atrisk <- fit$n.risk[, ncol(fit$n.risk)]
         atrisk.n <- atrisk[c(1, findInterval(atrisk.at[-1], fit$time, all.inside = T) + 1)]
         mtext(text = atrisk.n, side = 1, line = 1, at = atrisk.at, cex = 0.9)
+        
       }
     }
     
